@@ -95,6 +95,8 @@ class TcpSocketClient extends TcpSocket {
                     if(socket != null) {
                         socket.getOutputStream().write(data);
                         receiverListener.onWritten(getId(), msgId, null);
+                    } else {
+                        Log.i("socket null", socket == null ? "true" : "false");
                     }
                 } catch (IOException e) {
                     receiverListener.onWritten(getId(), msgId, e.toString());
