@@ -92,8 +92,10 @@ class TcpSocketClient extends TcpSocket {
             @Override
             public void run() {
                 try {
-                    socket.getOutputStream().write(data);
-                    receiverListener.onWritten(getId(), msgId, null);
+                    if(socket != null) {
+                        socket.getOutputStream().write(data);
+                        receiverListener.onWritten(getId(), msgId, null);
+                    }
                 } catch (IOException e) {
                     receiverListener.onWritten(getId(), msgId, e.toString());
                     receiverListener.onError(getId(), e.toString());
