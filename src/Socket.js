@@ -389,6 +389,14 @@ export default class Socket extends EventEmitter {
         console.warn('react-native-tcp-socket: Socket.unref() method will have no effect.');
     }
 
+    addListener(eventName) {
+
+    }
+
+    removeListeners(count) {
+
+    }
+
     /**
      * @private
      */
@@ -508,4 +516,6 @@ export default class Socket extends EventEmitter {
     _setDisconnected() {
         this._unregisterEvents();
     }
+
+
 }
