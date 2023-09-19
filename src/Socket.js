@@ -1,6 +1,6 @@
 'use strict';
 
-import { NativeModules, Image } from 'react-native';
+import { NativeModules } from 'react-native';
 import EventEmitter from 'eventemitter3';
 import { Buffer } from 'buffer';
 const Sockets = NativeModules.TcpSockets;
@@ -18,7 +18,6 @@ import { nativeEventEmitter, getNextId } from './Globals';
  * @typedef {{
  * port: number;
  * host?: string;
- * timeout?: number,
  * localAddress?: string,
  * localPort?: number,
  * interface?: 'wifi' | 'cellular' | 'ethernet',
@@ -39,6 +38,7 @@ import { nativeEventEmitter, getNextId } from './Globals';
  * @property {() => void} drain
  * @property {(err: Error) => void} error
  * @property {() => void} timeout
+ * @property {() => void} secureConnect
  *
  * @extends {EventEmitter<SocketEvents & ReadableEvents, any>}
  */
@@ -48,8 +48,8 @@ export default class Socket extends EventEmitter {
      */
     constructor() {
         super();
-        /** @private */
-        this._id = undefined;
+        /** @package */
+        this._id = getNextId();
         /** @private */
         this._eventEmitter = nativeEventEmitter;
         /** @type {EventEmitter<'written', any>} @private */
@@ -155,8 +155,6 @@ export default class Socket extends EventEmitter {
      * @param {() => void} [callback]
      */
     connect(options, callback) {
-        if (this._id === undefined) this._setId(getNextId());
-
         const customOptions = { ...options };
         // Normalize args
         customOptions.host = customOptions.host || 'localhost';
@@ -164,13 +162,6 @@ export default class Socket extends EventEmitter {
         this.once('connect', () => {
             if (callback) callback();
         });
-        // Timeout
-        if (customOptions.timeout) this.setTimeout(customOptions.timeout);
-        else if (this._timeout) this._activateTimer();
-        // TLS Cert
-        if (customOptions.tlsCert) {
-            customOptions.tlsCert = Image.resolveAssetSource(customOptions.tlsCert).uri;
-        }
         this._connecting = true;
         this._readyState = 'opening';
         Sockets.connect(this._id, customOptions.host, customOptions.port, customOptions);
@@ -291,7 +282,9 @@ export default class Socket extends EventEmitter {
     }
 
     /**
-     * @param {string | Buffer | Uint8Array} data
+     * Half-closes the socket. i.e., it sends a FIN packet. It is possible the server will still send some data.
+     *
+     * @param {string | Buffer | Uint8Array} [data]
      * @param {BufferEncoding} [encoding]
      */
     end(data, encoding) {
@@ -299,19 +292,23 @@ export default class Socket extends EventEmitter {
             this.write(data, encoding, () => {
                 Sockets.end(this._id);
             });
-        } else {
-            this._clearTimeout();
-            Sockets.end(this._id);
+            return this;
         }
+        if (this._pending || this._destroyed) return this;
+
+        this._clearTimeout();
+        Sockets.end(this._id);
         return this;
     }
 
+    /**
+     * Ensures that no more I/O activity happens on this socket. Destroys the stream and closes the connection.
+     */
     destroy() {
-        if (!this._destroyed) {
-            this._destroyed = true;
-            this._clearTimeout();
-            Sockets.destroy(this._id);
-        }
+        if (this._destroyed) return this;
+        this._destroyed = true;
+        this._clearTimeout();
+        Sockets.destroy(this._id);
         return this;
     }
 
@@ -331,7 +328,7 @@ export default class Socket extends EventEmitter {
      */
     write(buffer, encoding, cb) {
         const self = this;
-        if (this._pending || this._destroyed) throw new Error('Socket is not connected.');
+        if (this._pending || this._destroyed) throw new Error('Socket is closed.');
 
         const generatedBuffer = this._generateSendBuffer(buffer, encoding);
         this._writeBufferSize += generatedBuffer.byteLength;
@@ -476,7 +473,7 @@ export default class Socket extends EventEmitter {
     }
 
     /**
-     * @private
+     * @package
      */
     _unregisterEvents() {
         this._dataListener?.remove();

@@ -1,11 +1,27 @@
 // Execute this file using NodeJS
-const { init, server, client } = require('./echo');
+const { init, server, client } = require('./client-ssl');
+
+server.on('secureConnection', (socket) => {
+    console.log('SSL Client connected to server on ' + JSON.stringify(socket.address()));
+
+    socket.on('data', (data) => {
+        console.log('SSL Server client received: ' + (data.length < 500 ? data : data.length + ' bytes'));
+    });
+
+    socket.on('error', (error) => {
+        console.log('SSL Server client error ' + error);
+    });
+
+    socket.on('close', (error) => {
+        console.log('SSL Server client closed ' + (error ? error : ''));
+    });
+});
 
 server.on('connection', (socket) => {
     console.log('Client connected to server on ' + JSON.stringify(socket.address()));
 
     socket.on('data', (data) => {
-        console.log('Server client received: ' + data);
+        console.log('Server client received: ' + (data.length < 500 ? data : data.length + ' bytes'));
     });
 
     socket.on('error', (error) => {
@@ -25,6 +41,10 @@ server.on('close', () => {
     console.log('Server closed');
 });
 
+client.on('secureConnect', () => {
+    console.log('Opened SSL client on ' + JSON.stringify(client.address()));
+});
+
 client.on('connect', () => {
     console.log('Opened client on ' + JSON.stringify(client.address()));
 });
@@ -34,7 +54,7 @@ client.on('drain', () => {
 });
 
 client.on('data', (data) => {
-    console.log('Client received: ' + data);
+    console.log('Client received: ' + (data.length < 500 ? data : data.length + ' bytes'));
 });
 
 client.on('error', (error) => {

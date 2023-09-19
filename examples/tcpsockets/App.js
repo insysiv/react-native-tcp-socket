@@ -7,7 +7,7 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { init, server, client } from './examples/echo';
+import { init, server, client } from './examples/echo-ssl';
 
 class App extends React.Component {
     /**
@@ -24,6 +24,7 @@ class App extends React.Component {
      * @param {string | Error} msg
      */
     updateChatter(msg) {
+        console.log(msg);
         this.setState({
             // @ts-ignore
             chatter: this.state.chatter.concat([msg]),
@@ -31,11 +32,27 @@ class App extends React.Component {
     }
 
     componentDidMount() {
+        server.on('secureConnection', (socket) => {
+            this.updateChatter('SSL Client connected to server on ' + JSON.stringify(socket.address()));
+
+            socket.on('data', (data) => {
+                this.updateChatter('SSL Server client received: ' + (data.length < 500 ? data : data.length + ' bytes'));
+            });
+
+            socket.on('error', (error) => {
+                this.updateChatter('SSL Server client error ' + error);
+            });
+
+            socket.on('close', (error) => {
+                this.updateChatter('SSL Server client closed ' + (error ? error : ''));
+            });
+        });
+
         server.on('connection', (socket) => {
             this.updateChatter('Client connected to server on ' + JSON.stringify(socket.address()));
 
             socket.on('data', (data) => {
-                this.updateChatter('Server client received: ' + data);
+                this.updateChatter('Server client received: ' + (data.length < 500 ? data : data.length + ' bytes'));
             });
 
             socket.on('error', (error) => {
@@ -47,8 +64,11 @@ class App extends React.Component {
             });
         });
 
+        client.on('secureConnect', () => {
+            console.log('Opened SSL client on ' + JSON.stringify(client.address()));
+        });
+
         server.on('error', (error) => {
-            this.updateChatter(error);
             this.updateChatter('Server error ' + error);
         });
 
@@ -65,7 +85,7 @@ class App extends React.Component {
         });
 
         client.on('data', (data) => {
-            this.updateChatter('Client received: ' + data);
+            this.updateChatter('Client received: ' + (data.length < 500 ? data : data.length + ' bytes'));
         });
 
         client.on('error', (error) => {

@@ -3,13 +3,9 @@ const net = require('net');
 const server = new net.Server();
 const client = new net.Socket();
 
-function init() {
-    server.on('connection', (socket) => {
-        socket.on('data', () => {
-            socket.write('Echo server\r\n');
-        })
-    });
+const hugeData = 'x'.repeat(5*1024*1024)
 
+function init() {
     server.listen({ port: 0, host: '127.0.0.1', reuseAddress: true }, () => {
         const port = server.address()?.port;
         if (!port) throw new Error('Server port not found');
@@ -20,16 +16,13 @@ function init() {
                 localAddress: '127.0.0.1',
                 reuseAddress: true,
                 // localPort: 20000,
-                // interface: "wifi"
+                // interface: "wifi",
+                // tls: true
             },
             () => {
-                client.write('Hello, server! Love, Client.');
+                client.end(hugeData, 'utf8');
             }
         );
-    });
-
-    client.on('data', () => {
-        client.destroy(); // kill client after server's response
     });
 }
 

@@ -10,7 +10,6 @@
  * @typedef {{
  * port: number;
  * host?: string;
- * timeout?: number,
  * localAddress?: string,
  * localPort?: number,
  * interface?: 'wifi' | 'cellular' | 'ethernet',
@@ -31,12 +30,13 @@
  * @property {() => void} drain
  * @property {(err: Error) => void} error
  * @property {() => void} timeout
+ * @property {() => void} secureConnect
  *
  * @extends {EventEmitter<SocketEvents & ReadableEvents, any>}
  */
 export default class Socket extends EventEmitter<SocketEvents & ReadableEvents, any> {
-    /** @private */
-    private _id;
+    /** @package */
+    _id: number;
     /** @private */
     private _eventEmitter;
     /** @type {EventEmitter<'written', any>} @private */
@@ -163,10 +163,15 @@ export default class Socket extends EventEmitter<SocketEvents & ReadableEvents, 
      */
     address(): AddressInfo | {};
     /**
-     * @param {string | Buffer | Uint8Array} data
+     * Half-closes the socket. i.e., it sends a FIN packet. It is possible the server will still send some data.
+     *
+     * @param {string | Buffer | Uint8Array} [data]
      * @param {BufferEncoding} [encoding]
      */
-    end(data: string | Buffer | Uint8Array, encoding?: "ascii" | "utf8" | "utf-8" | "utf16le" | "ucs2" | "ucs-2" | "base64" | "latin1" | "binary" | "hex" | undefined): Socket;
+    end(data?: string | Buffer | Uint8Array | undefined, encoding?: "ascii" | "utf8" | "utf-8" | "utf16le" | "ucs2" | "ucs-2" | "base64" | "latin1" | "binary" | "hex" | undefined): Socket;
+    /**
+     * Ensures that no more I/O activity happens on this socket. Destroys the stream and closes the connection.
+     */
     destroy(): Socket;
     /**
      * Sends data on the socket. The second parameter specifies the encoding in the case of a string — it defaults to UTF8 encoding.
@@ -211,9 +216,9 @@ export default class Socket extends EventEmitter<SocketEvents & ReadableEvents, 
     _connectListener: import("react-native").EmitterSubscription | undefined;
     _writtenListener: import("react-native").EmitterSubscription | undefined;
     /**
-     * @private
+     * @package
      */
-    private _unregisterEvents;
+    _unregisterEvents(): void;
     /**
      * @private
      * @param {string | Buffer | Uint8Array} buffer
@@ -242,7 +247,6 @@ export type NativeConnectionInfo = {
 export type ConnectionOptions = {
     port: number;
     host?: string | undefined;
-    timeout?: number | undefined;
     localAddress?: string | undefined;
     localPort?: number | undefined;
     interface?: "wifi" | "cellular" | "ethernet" | undefined;
@@ -262,6 +266,7 @@ export type SocketEvents = {
     drain: () => void;
     error: (err: Error) => void;
     timeout: () => void;
+    secureConnect: () => void;
 };
 import EventEmitter from "eventemitter3";
 import { Buffer } from "buffer";

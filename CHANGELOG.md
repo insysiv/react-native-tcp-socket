@@ -1,3 +1,71 @@
+## [6.0.6](https://github.com/Rapsssito/react-native-tcp-socket/compare/v6.0.5...v6.0.6) (2023-02-08)
+
+
+### Bug Fixes
+
+* **Android:** Avoid crash when writing on closed socket. ([466a5db](https://github.com/Rapsssito/react-native-tcp-socket/commit/466a5db0285f6ab688d32c81b682dd320999bbdc)), closes [#167](https://github.com/Rapsssito/react-native-tcp-socket/issues/167)
+
+## [6.0.5](https://github.com/Rapsssito/react-native-tcp-socket/compare/v6.0.4...v6.0.5) (2023-01-30)
+
+
+### Bug Fixes
+
+* **iOS:** Throw specific error messages ([#171](https://github.com/Rapsssito/react-native-tcp-socket/issues/171)) ([8f39511](https://github.com/Rapsssito/react-native-tcp-socket/commit/8f3951199fcdd0806912e2a953d80db9466518a8))
+
+## [6.0.4](https://github.com/Rapsssito/react-native-tcp-socket/compare/v6.0.3...v6.0.4) (2023-01-30)
+
+
+### Bug Fixes
+
+* Allow destroying socket while connecting ([#169](https://github.com/Rapsssito/react-native-tcp-socket/issues/169)) ([54cc248](https://github.com/Rapsssito/react-native-tcp-socket/commit/54cc2486ee4201d8c62bc9535610ff75f72b820d))
+
+## [6.0.3](https://github.com/Rapsssito/react-native-tcp-socket/compare/v6.0.2...v6.0.3) (2022-11-21)
+
+
+### Bug Fixes
+
+* **Android:** Fix null error writing on disconnected socket ([59d3195](https://github.com/Rapsssito/react-native-tcp-socket/commit/59d3195a8c68eddb0341c8264d712ed2266d23b5))
+
+## [6.0.2](https://github.com/Rapsssito/react-native-tcp-socket/compare/v6.0.1...v6.0.2) (2022-09-30)
+
+
+### Bug Fixes
+
+* Remove `timeout` from connection parameters ([16fea0b](https://github.com/Rapsssito/react-native-tcp-socket/commit/16fea0bea42274e88122d2fa70c7d29de1df8632))
+
+## [6.0.1](https://github.com/Rapsssito/react-native-tcp-socket/compare/v6.0.0...v6.0.1) (2022-08-22)
+
+
+### Bug Fixes
+
+* Server never emits close event if no connections ([#156](https://github.com/Rapsssito/react-native-tcp-socket/issues/156)) ([6eec851](https://github.com/Rapsssito/react-native-tcp-socket/commit/6eec8519a9e2e74e7ec986eca518b4142d7365be)), closes [#144](https://github.com/Rapsssito/react-native-tcp-socket/issues/144)
+
+# [6.0.0](https://github.com/Rapsssito/react-native-tcp-socket/compare/v5.6.2...v6.0.0) (2022-08-21)
+
+
+### Features
+
+* Add complete server/client TLS support ([#158](https://github.com/Rapsssito/react-native-tcp-socket/issues/158)) ([3264f44](https://github.com/Rapsssito/react-native-tcp-socket/commit/3264f4455cc0cf04fda643818dc3bed48e2d8f38))
+
+
+### BREAKING CHANGES
+
+* TLS client API now matches NodeJS official tls API.
+
+## [5.6.2](https://github.com/Rapsssito/react-native-tcp-socket/compare/v5.6.1...v5.6.2) (2022-04-26)
+
+
+### Bug Fixes
+
+* **Android:** Add RN 0.65 event emitter stubs ([#151](https://github.com/Rapsssito/react-native-tcp-socket/issues/151)) ([8c025ef](https://github.com/Rapsssito/react-native-tcp-socket/commit/8c025ef19cc871c78b44960597ecce4cfd739c7f))
+
+## [5.6.1](https://github.com/Rapsssito/react-native-tcp-socket/compare/v5.6.0...v5.6.1) (2022-04-18)
+
+
+### Bug Fixes
+
+* destroy & end work as no-op on closed streams ([b129cf3](https://github.com/Rapsssito/react-native-tcp-socket/commit/b129cf3b4b93e84bf79e36766ed296ffa8041bf2)), closes [#145](https://github.com/Rapsssito/react-native-tcp-socket/issues/145)
+
 # [5.6.0](https://github.com/Rapsssito/react-native-tcp-socket/compare/v5.5.0...v5.6.0) (2022-02-22)
 
 
